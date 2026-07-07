@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         String    @default("USER")
+  clubId       String?
+  club         Club?     @relation(fields: [clubId], references: [id])
+  bookings     Booking[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Club {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  city         String
+  address      String
+  description  String
+  openingHours String
+  imageUrl     String
+  courts       Court[]
+  users        User[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Court {
+  id           String             @id @default(cuid())
+  clubId       String
+  club         Club               @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  name         String
+  sport        String
+  surface      String
+  pricePerHour Int
+  slotMinutes  Int                @default(60)
+  availability AvailabilityRule[]
+  bookings     Booking[]
+}
+
+model AvailabilityRule {
+  id        String @id @default(cuid())
+  courtId   String
+  court     Court  @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  dayOfWeek Int
+  openTime  String
+  closeTime String
+}
+
+model Booking {
+  id          String   @id @default(cuid())
+  courtId     String
+  court       Court    @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startAt     DateTime
+  endAt       DateTime
+  status      String   @default("CONFIRMED")
+  totalAmount Int
+  createdAt   DateTime @default(now())
+
+  @@unique([courtId, startAt])
+}
