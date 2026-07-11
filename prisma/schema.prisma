@@ -9,16 +9,18 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  name         String
-  passwordHash String
-  role         String    @default("USER")
-  clubId       String?
-  club         Club?     @relation(fields: [clubId], references: [id])
-  bookings     Booking[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String
+  passwordHash    String
+  role            String    @default("USER")
+  clubId          String?
+  club            Club?     @relation(fields: [clubId], references: [id])
+  preferredSport  String?
+  notifyBookings  Boolean   @default(true)
+  bookings        Booking[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 model Club {

@@ -101,6 +101,26 @@ export async function getUserBookings(userId: string) {
     include: {
       court: { include: { club: true } },
     },
-    orderBy: { startAt: "asc" },
+    orderBy: { startAt: "desc" },
   });
+}
+
+export function splitUserBookings<T extends { startAt: Date; endAt: Date }>(
+  bookings: T[],
+  now = new Date(),
+) {
+  const upcoming: T[] = [];
+  const past: T[] = [];
+
+  for (const booking of bookings) {
+    if (booking.endAt > now) {
+      upcoming.push(booking);
+    } else {
+      past.push(booking);
+    }
+  }
+
+  upcoming.sort((a, b) => a.startAt.getTime() - b.startAt.getTime());
+
+  return { upcoming, past };
 }

@@ -6,6 +6,57 @@ import { usePathname } from "next/navigation";
 
 interface BottomNavProps {
   profileHref: string;
+  isLoggedIn: boolean;
+  userInitials?: string;
+}
+
+function ProfileIcon({
+  active,
+  isLoggedIn,
+  userInitials,
+}: {
+  active: boolean;
+  isLoggedIn: boolean;
+  userInitials?: string;
+}) {
+  if (isLoggedIn && userInitials) {
+    return (
+      <span
+        className={cn(
+          "flex size-6 items-center justify-center rounded-full text-[10px] font-semibold",
+          active ? "bg-emerald-600 text-white" : "bg-zinc-200 text-zinc-600",
+        )}
+        aria-hidden
+      >
+        {userInitials}
+      </span>
+    );
+  }
+
+  return (
+    <svg
+      className={cn("size-6", active ? "text-emerald-600" : "text-zinc-400")}
+      fill={active ? "currentColor" : "none"}
+      viewBox="0 0 24 24"
+      strokeWidth={active ? 0 : 1.75}
+      stroke="currentColor"
+      aria-hidden
+    >
+      {active ? (
+        <path
+          fillRule="evenodd"
+          d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
+          clipRule="evenodd"
+        />
+      ) : (
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+        />
+      )}
+    </svg>
+  );
 }
 
 interface NavItem {
@@ -15,7 +66,7 @@ interface NavItem {
   icon: (active: boolean) => React.ReactNode;
 }
 
-export function BottomNav({ profileHref }: BottomNavProps) {
+export function BottomNav({ profileHref, isLoggedIn, userInitials }: BottomNavProps) {
   const pathname = usePathname();
 
   const items: NavItem[] = [
@@ -92,32 +143,11 @@ export function BottomNav({ profileHref }: BottomNavProps) {
       label: "Profilo",
       match: (path) =>
         path.startsWith("/login") ||
-        path.startsWith("/dashboard") ||
+        path.startsWith("/dashboard/profilo") ||
         path.startsWith("/club") ||
         path.startsWith("/admin"),
       icon: (active) => (
-        <svg
-          className={cn("size-6", active ? "text-emerald-600" : "text-zinc-400")}
-          fill={active ? "currentColor" : "none"}
-          viewBox="0 0 24 24"
-          strokeWidth={active ? 0 : 1.75}
-          stroke="currentColor"
-          aria-hidden
-        >
-          {active ? (
-            <path
-              fillRule="evenodd"
-              d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
-              clipRule="evenodd"
-            />
-          ) : (
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-            />
-          )}
-        </svg>
+        <ProfileIcon active={active} isLoggedIn={isLoggedIn} userInitials={userInitials} />
       ),
     },
   ];

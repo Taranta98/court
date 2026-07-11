@@ -89,7 +89,7 @@ export function ClubSearchForm({
         autoFocus={autoFocus}
         autoComplete="off"
         enterKeyHint="search"
-        className="w-full rounded-xl bg-zinc-100 py-3 pl-10 pr-10 text-sm text-zinc-900 outline-none placeholder:text-zinc-500 focus:ring-2 focus:ring-emerald-500/30"
+        className="w-full rounded-xl bg-zinc-100 py-3 pl-10 pr-10 text-sm text-zinc-900 caret-zinc-900 outline-none placeholder:text-zinc-500 focus:ring-2 focus:ring-emerald-500/30"
       />
       {query && (
         <button

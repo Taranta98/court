@@ -75,3 +75,10 @@ export function getDashboardPath(role: Role) {
       return "/dashboard";
   }
 }
+
+export function getProfilePath(role: Role) {
+  if (role === "USER") {
+    return "/dashboard/profilo";
+  }
+  return getDashboardPath(role);
+}
