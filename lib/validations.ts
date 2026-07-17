@@ -104,6 +104,31 @@ export const updateClubBookingSchema = z.object({
   paymentStatus: z.enum(["PAID", "UNPAID"]),
 });
 
+const optionalEmail = z.union([
+  z.literal(""),
+  z.string().trim().email("Inserisci un'email valida."),
+]);
+
+const optionalDate = z.union([
+  z.literal(""),
+  z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data non valida."),
+]);
+
+export const clubMemberSchema = z.object({
+  firstName: z.string().trim().min(2, "Inserisci il nome."),
+  lastName: z.string().trim().min(2, "Inserisci il cognome."),
+  email: optionalEmail,
+  phone: z.union([z.literal(""), z.string().trim().max(30, "Telefono troppo lungo.")]),
+  membershipNumber: z.union([
+    z.literal(""),
+    z.string().trim().max(40, "Numero tessera troppo lungo."),
+  ]),
+  status: z.enum(["ACTIVE", "SUSPENDED", "ARCHIVED"]),
+  medicalCertificateExpiresAt: optionalDate,
+  membershipExpiresAt: optionalDate,
+  notes: z.union([z.literal(""), z.string().trim().max(1000, "Note troppo lunghe.")]),
+});
+
 export type ActionState = {
   error?: string;
   fieldErrors?: Record<string, string[]>;

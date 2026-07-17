@@ -22,6 +22,11 @@ const navItems = [
     match: (pathname: string) => pathname.startsWith("/club/prenotazioni"),
   },
   {
+    href: "/club/tesserati",
+    label: "Tesserati",
+    match: (pathname: string) => pathname.startsWith("/club/tesserati"),
+  },
+  {
     href: "/club/gestione",
     label: "Gestione",
     match: (pathname: string) => pathname.startsWith("/club/gestione"),
@@ -33,7 +38,14 @@ export function ClubNav({ clubName, notificationsSlot }: ClubNavProps) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white">
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-3 px-4">
+      <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-3 px-4 sm:h-16 sm:gap-6">
+        <Link
+          href="/club"
+          className="shrink-0 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl"
+        >
+          Court<span className="text-emerald-500">.</span>
+        </Link>
+
         <nav
           className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto sm:gap-2"
           aria-label="Navigazione pannello circolo"

@@ -1,5 +1,5 @@
 import { requireRole } from "@/actions/auth";
-import { setSessionCookie, type SessionPayload } from "@/lib/auth/session";
+import type { SessionPayload } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { ROLES, type Role } from "@/lib/types/db";
 
@@ -30,29 +30,25 @@ export async function resolveClubId(session: SessionPayload) {
     if (club) return club.id;
   }
 
-  const user = await prisma.user.findUnique({
+  let user = await prisma.user.findUnique({
     where: { id: session.userId },
     select: { clubId: true },
   });
+
+  // Dopo un re-seed gli ID in cookie possono essere obsoleti: prova dall'email.
+  if (!user) {
+    user = await prisma.user.findUnique({
+      where: { email: session.email },
+      select: { clubId: true },
+    });
+  }
 
   if (user?.clubId) {
     const club = await prisma.club.findUnique({
       where: { id: user.clubId },
       select: { id: true },
     });
-
-    if (club) {
-      if (session.clubId !== user.clubId) {
-        await setSessionCookie({
-          userId: session.userId,
-          email: session.email,
-          name: session.name,
-          role: session.role,
-          clubId: user.clubId,
-        });
-      }
-      return club.id;
-    }
+    if (club) return club.id;
   }
 
   if (session.role === ROLES.ADMIN || session.role === ROLES.SUPER_ADMIN) {

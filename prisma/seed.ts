@@ -104,6 +104,7 @@ async function main() {
   await prisma.booking.deleteMany();
   await prisma.availabilityRule.deleteMany();
   await prisma.clubPhoto.deleteMany();
+  await prisma.clubMember.deleteMany();
   await prisma.court.deleteMany();
   await prisma.user.deleteMany();
   await prisma.club.deleteMany();
@@ -227,6 +228,62 @@ async function main() {
         },
       });
     }
+
+    const inDays = (days: number) => {
+      const date = new Date();
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() + days);
+      return date;
+    };
+
+    await prisma.clubMember.createMany({
+      data: [
+        {
+          clubId: tennisClub.id,
+          firstName: "Luca",
+          lastName: "Verdi",
+          email: "luca.verdi@email.it",
+          phone: "3331112233",
+          membershipNumber: "TCR-001",
+          status: "ACTIVE",
+          medicalCertificateExpiresAt: inDays(12),
+          membershipExpiresAt: inDays(90),
+          notes: "Singolare maschile agonistico",
+        },
+        {
+          clubId: tennisClub.id,
+          firstName: "Sara",
+          lastName: "Neri",
+          email: "sara.neri@email.it",
+          phone: "3334455667",
+          membershipNumber: "TCR-014",
+          status: "ACTIVE",
+          medicalCertificateExpiresAt: inDays(-5),
+          membershipExpiresAt: inDays(20),
+        },
+        {
+          clubId: tennisClub.id,
+          firstName: "Andrea",
+          lastName: "Bruno",
+          email: "andrea.bruno@email.it",
+          membershipNumber: "TCR-022",
+          status: "ACTIVE",
+          medicalCertificateExpiresAt: inDays(180),
+          membershipExpiresAt: inDays(200),
+        },
+        {
+          clubId: tennisClub.id,
+          firstName: "Elena",
+          lastName: "Conti",
+          phone: "3409988776",
+          membershipNumber: "TCR-031",
+          status: "SUSPENDED",
+          medicalCertificateExpiresAt: null,
+          membershipExpiresAt: inDays(-30),
+          notes: "In attesa di rinnovo tessera",
+        },
+      ],
+    });
   }
 
   console.log("Database seeded.");

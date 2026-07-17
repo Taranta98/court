@@ -34,10 +34,31 @@ model Club {
   imageUrl      String
   courts        Court[]
   photos        ClubPhoto[]
+  members       ClubMember[]
   users         User[]
   notifications ClubNotification[]
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
+}
+
+model ClubMember {
+  id                         String    @id @default(cuid())
+  clubId                     String
+  club                       Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  firstName                  String
+  lastName                   String
+  email                      String?
+  phone                      String?
+  membershipNumber           String?
+  status                     String    @default("ACTIVE")
+  medicalCertificateExpiresAt DateTime?
+  membershipExpiresAt        DateTime?
+  notes                      String?
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+
+  @@index([clubId])
+  @@index([clubId, status])
 }
 
 model ClubPhoto {

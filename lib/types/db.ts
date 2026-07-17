@@ -34,3 +34,20 @@ export const DB_SPORTS = {
 } as const;
 
 export type DbSport = (typeof DB_SPORTS)[keyof typeof DB_SPORTS];
+
+export const MEMBER_STATUS = {
+  ACTIVE: "ACTIVE",
+  SUSPENDED: "SUSPENDED",
+  ARCHIVED: "ARCHIVED",
+} as const;
+
+export type MemberStatus = (typeof MEMBER_STATUS)[keyof typeof MEMBER_STATUS];
+
+export const EXPIRY_STATUS = {
+  MISSING: "MISSING",
+  VALID: "VALID",
+  EXPIRING: "EXPIRING",
+  EXPIRED: "EXPIRED",
+} as const;
+
+export type ExpiryStatus = (typeof EXPIRY_STATUS)[keyof typeof EXPIRY_STATUS];
