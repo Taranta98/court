@@ -11,6 +11,8 @@ interface AppTopBarProps {
   profileHref: string;
   isLoggedIn: boolean;
   logoutSlot?: React.ReactNode;
+  notificationsSlot?: React.ReactNode;
+  hidden?: boolean;
 }
 
 export function AppTopBar({
@@ -19,12 +21,18 @@ export function AppTopBar({
   profileHref,
   isLoggedIn,
   logoutSlot,
+  notificationsSlot,
+  hidden = false,
 }: AppTopBarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const isHome = pathname === "/";
   const isCircoliList = pathname === "/circoli";
   const isAuthPage = pathname === "/login" || pathname === "/registrazione";
+
+  if (hidden) {
+    return null;
+  }
 
   function handleSearchClick() {
     if (isHome || isCircoliList) {
@@ -49,14 +57,16 @@ export function AppTopBar({
             </div>
           ) : (
             <>
-              {/* Mobile header — solo titolo app centrato */}
-              <div className="flex h-12 items-center justify-center px-3 sm:hidden">
+              {/* Mobile header */}
+              <div className="flex h-12 items-center justify-between px-3 sm:hidden">
+                <div className="w-10" aria-hidden />
                 <Link
                   href="/"
                   className="text-2xl font-bold tracking-tight text-slate-900"
                 >
                   Court<span className="text-emerald-500">.</span>
                 </Link>
+                <div className="flex w-10 justify-end">{notificationsSlot}</div>
               </div>
 
               {/* Desktop header */}
@@ -80,6 +90,7 @@ export function AppTopBar({
               )}
               {isLoggedIn ? (
                 <>
+                  {notificationsSlot}
                   <Link
                     href={profileHref}
                     className="rounded-lg px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-100"

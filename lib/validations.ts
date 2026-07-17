@@ -49,6 +49,61 @@ export const updatePreferencesSchema = z.object({
   notifyBookings: z.boolean(),
 });
 
+const imageUrlSchema = z.string().url("Inserisci un URL valido per l'immagine.");
+
+export const updateClubProfileSchema = z.object({
+  description: z.string().min(10, "La descrizione deve avere almeno 10 caratteri."),
+  openingHours: z.string().min(3, "Inserisci gli orari di apertura."),
+  imageUrl: imageUrlSchema,
+});
+
+export const addClubPhotoSchema = z.object({
+  url: imageUrlSchema,
+});
+
+const dbSportValues = [
+  "TENNIS",
+  "PADEL",
+  "CALCETTO",
+  "CALCIOTTO",
+  "PALLAVOLO",
+  "BEACH_VOLLEY",
+  "BEACH_TENNIS",
+] as const;
+
+export const courtSchema = z.object({
+  name: z.string().min(1, "Inserisci il nome del campo."),
+  sport: z.enum(dbSportValues),
+  surface: z.string().min(1, "Inserisci la superficie."),
+  pricePerHour: z.coerce.number().int().min(1, "Il prezzo deve essere almeno 1 €."),
+  slotMinutes: z.coerce
+    .number()
+    .int()
+    .refine((value) => [30, 60, 90, 120].includes(value), {
+      message: "Durata slot non valida.",
+    }),
+});
+
+const timeSchema = z.string().regex(/^\d{2}:\d{2}$/, "Formato orario: HH:mm");
+
+export const availabilityDaySchema = z.object({
+  dayOfWeek: z.coerce.number().int().min(0).max(6),
+  enabled: z.boolean(),
+  openTime: timeSchema,
+  closeTime: timeSchema,
+});
+
+export const updateAvailabilitySchema = z.object({
+  courtId: z.string().min(1),
+  days: z.array(availabilityDaySchema).length(7),
+});
+
+export const updateClubBookingSchema = z.object({
+  bookingId: z.string().min(1),
+  status: z.enum(["PENDING", "CONFIRMED", "CANCELLED"]),
+  paymentStatus: z.enum(["PAID", "UNPAID"]),
+});
+
 export type ActionState = {
   error?: string;
   fieldErrors?: Record<string, string[]>;

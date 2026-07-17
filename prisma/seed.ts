@@ -100,8 +100,10 @@ const clubsSeed = [
 ];
 
 async function main() {
+  await prisma.clubNotification.deleteMany();
   await prisma.booking.deleteMany();
   await prisma.availabilityRule.deleteMany();
+  await prisma.clubPhoto.deleteMany();
   await prisma.court.deleteMany();
   await prisma.user.deleteMany();
   await prisma.club.deleteMany();
@@ -172,6 +174,60 @@ async function main() {
       },
     ],
   });
+
+  const testUser = await prisma.user.findUnique({ where: { email: "utente@test.it" } });
+  const tennisClub = await prisma.club.findUnique({
+    where: { slug: "tennis-club-roma" },
+    include: { courts: true },
+  });
+
+  if (testUser && tennisClub && tennisClub.courts.length > 0) {
+    const court = tennisClub.courts[0];
+    const now = new Date();
+    const sampleBookings = [
+      { monthsAgo: 11, day: 10, hour: 10, amount: 25, status: "CONFIRMED", paymentStatus: "PAID" },
+      { monthsAgo: 10, day: 12, hour: 11, amount: 50, status: "CONFIRMED", paymentStatus: "PAID" },
+      { monthsAgo: 10, day: 18, hour: 15, amount: 25, status: "CONFIRMED", paymentStatus: "UNPAID" },
+      { monthsAgo: 8, day: 8, hour: 9, amount: 75, status: "CONFIRMED", paymentStatus: "PAID" },
+      { monthsAgo: 6, day: 20, hour: 17, amount: 25, status: "CONFIRMED", paymentStatus: "PAID" },
+      { monthsAgo: 5, day: 5, hour: 14, amount: 50, status: "PENDING", paymentStatus: "UNPAID" },
+      { monthsAgo: 3, day: 22, hour: 10, amount: 25, status: "CONFIRMED", paymentStatus: "PAID" },
+      { monthsAgo: 2, day: 14, hour: 16, amount: 50, status: "CONFIRMED", paymentStatus: "PAID" },
+      { monthsAgo: 1, day: 7, hour: 11, amount: 25, status: "CONFIRMED", paymentStatus: "UNPAID" },
+      { monthsAgo: 0, day: 25, hour: 18, amount: 75, status: "CONFIRMED", paymentStatus: "PAID" },
+      { monthsAgo: -1, day: 3, hour: 9, amount: 25, status: "PENDING", paymentStatus: "UNPAID" },
+      { monthsAgo: 14, day: 16, hour: 12, amount: 50, status: "CANCELLED", paymentStatus: "UNPAID" },
+      { monthsAgo: 26, day: 9, hour: 10, amount: 100, status: "CONFIRMED", paymentStatus: "PAID" },
+    ];
+
+    for (const sample of sampleBookings) {
+      const startAt = new Date(now);
+      startAt.setMonth(startAt.getMonth() - sample.monthsAgo);
+      startAt.setDate(sample.day);
+      startAt.setHours(sample.hour, 0, 0, 0);
+
+      const endAt = new Date(startAt.getTime() + 60 * 60_000);
+
+      const booking = await prisma.booking.create({
+        data: {
+          courtId: court.id,
+          userId: testUser.id,
+          startAt,
+          endAt,
+          status: sample.status,
+          paymentStatus: sample.paymentStatus,
+          totalAmount: sample.amount,
+        },
+      });
+
+      await prisma.clubNotification.create({
+        data: {
+          clubId: tennisClub.id,
+          bookingId: booking.id,
+        },
+      });
+    }
+  }
 
   console.log("Database seeded.");
   console.log("Account di test (password: password123):");

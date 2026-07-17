@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { BOOKING_STATUS } from "@/lib/types/db";
+import { BOOKING_STATUS, PAYMENT_STATUS } from "@/lib/types/db";
 
 export interface TimeSlot {
   startAt: string;
@@ -82,14 +82,33 @@ export async function getClubBookings(clubId: string) {
   return prisma.booking.findMany({
     where: {
       court: { clubId },
-      status: { in: [BOOKING_STATUS.CONFIRMED, BOOKING_STATUS.PENDING] },
     },
     include: {
       court: true,
       user: true,
     },
-    orderBy: { startAt: "asc" },
+    orderBy: { startAt: "desc" },
   });
+}
+
+export function filterRevenueBookings<
+  T extends { status: string; paymentStatus: string; startAt: Date; totalAmount: number },
+>(bookings: T[]) {
+  return bookings.filter(
+    (booking) =>
+      booking.status !== BOOKING_STATUS.CANCELLED &&
+      booking.paymentStatus === PAYMENT_STATUS.PAID,
+  );
+}
+
+export function filterAffluenceBookings<T extends { status: string; startAt: Date }>(
+  bookings: T[],
+) {
+  return bookings.filter(
+    (booking) =>
+      booking.status === BOOKING_STATUS.CONFIRMED ||
+      booking.status === BOOKING_STATUS.PENDING,
+  );
 }
 
 export async function getUserBookings(userId: string) {

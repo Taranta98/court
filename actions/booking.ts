@@ -3,7 +3,7 @@
 import { requireSession } from "@/actions/auth";
 import { getAvailableSlots } from "@/lib/booking/slots";
 import { prisma } from "@/lib/db";
-import { BOOKING_STATUS } from "@/lib/types/db";
+import { BOOKING_STATUS, PAYMENT_STATUS } from "@/lib/types/db";
 import { bookingSchema, type ActionState } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
 
@@ -54,14 +54,22 @@ export async function createBookingAction(
         throw new Error("SLOT_TAKEN");
       }
 
-      await tx.booking.create({
+      const booking = await tx.booking.create({
         data: {
           courtId: court.id,
           userId: session.userId,
           startAt,
           endAt,
           totalAmount: Math.round((court.pricePerHour * court.slotMinutes) / 60),
-          status: BOOKING_STATUS.CONFIRMED,
+          status: BOOKING_STATUS.PENDING,
+          paymentStatus: PAYMENT_STATUS.UNPAID,
+        },
+      });
+
+      await tx.clubNotification.create({
+        data: {
+          clubId: court.clubId,
+          bookingId: booking.id,
         },
       });
     });
@@ -76,8 +84,9 @@ export async function createBookingAction(
   revalidatePath(`/circoli/${court.club.slug}/prenota`);
   revalidatePath("/dashboard");
   revalidatePath("/club");
+  revalidatePath("/club/prenotazioni");
 
   return {
-    success: `Prenotazione confermata per ${court.name} il ${startAt.toLocaleString("it-IT")}.`,
+    success: `Richiesta inviata per ${court.name} il ${startAt.toLocaleString("it-IT")}. In attesa di conferma del circolo.`,
   };
 }

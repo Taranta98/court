@@ -16,6 +16,13 @@ export const BOOKING_STATUS = {
 
 export type BookingStatus = (typeof BOOKING_STATUS)[keyof typeof BOOKING_STATUS];
 
+export const PAYMENT_STATUS = {
+  PAID: "PAID",
+  UNPAID: "UNPAID",
+} as const;
+
+export type PaymentStatus = (typeof PAYMENT_STATUS)[keyof typeof PAYMENT_STATUS];
+
 export const DB_SPORTS = {
   TENNIS: "TENNIS",
   PADEL: "PADEL",

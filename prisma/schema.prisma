@@ -24,18 +24,28 @@ model User {
 }
 
 model Club {
-  id           String   @id @default(cuid())
-  slug         String   @unique
-  name         String
-  city         String
-  address      String
-  description  String
-  openingHours String
-  imageUrl     String
-  courts       Court[]
-  users        User[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String             @id @default(cuid())
+  slug          String             @unique
+  name          String
+  city          String
+  address       String
+  description   String
+  openingHours  String
+  imageUrl      String
+  courts        Court[]
+  photos        ClubPhoto[]
+  users         User[]
+  notifications ClubNotification[]
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+}
+
+model ClubPhoto {
+  id        String @id @default(cuid())
+  clubId    String
+  club      Club   @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  url       String
+  sortOrder Int    @default(0)
 }
 
 model Court {
@@ -61,16 +71,28 @@ model AvailabilityRule {
 }
 
 model Booking {
-  id          String   @id @default(cuid())
-  courtId     String
-  court       Court    @relation(fields: [courtId], references: [id], onDelete: Cascade)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  startAt     DateTime
-  endAt       DateTime
-  status      String   @default("CONFIRMED")
-  totalAmount Int
-  createdAt   DateTime @default(now())
+  id            String            @id @default(cuid())
+  courtId       String
+  court         Court             @relation(fields: [courtId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startAt       DateTime
+  endAt         DateTime
+  status        String            @default("PENDING")
+  paymentStatus String            @default("UNPAID")
+  totalAmount   Int
+  createdAt     DateTime          @default(now())
+  notification  ClubNotification?
 
   @@unique([courtId, startAt])
+}
+
+model ClubNotification {
+  id        String    @id @default(cuid())
+  clubId    String
+  club      Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  bookingId String    @unique
+  booking   Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
 }
